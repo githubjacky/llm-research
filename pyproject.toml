@@ -1,0 +1,77 @@
+[tool.poetry]
+name = ""
+version = "0.1.0"
+description = ""
+authors = ["githubjacky"]
+
+
+[tool.poetry.dependencies]
+python = ">=3.9, <4.0"
+hydra-core = "^1.1.1"
+python-dotenv = "^1.0.0"
+loguru = "<0.7.0"
+orjson = "^3.9.4"
+tqdm = "^4.66.1"
+pandas = "^2.0.3"
+
+
+[tool.poetry.group.process.dependencies]
+
+
+[tool.poetry.group.model.dependencies]
+
+
+[tool.poetry.group.dev.dependencies]
+ipykernel = "^6.25.0"
+ipywidgets = ">=7.6"
+jupyterlab-execute-time = "2.3.1"
+jupyterlab = "3.6.6"
+jupyterlab-lsp = "4.3.0"
+python-lsp-server = {extras = ["all"], version = "^1.8.2"}
+jupyter-bokeh = "3.0.2"
+hvplot = "^0.9.1"
+pytest = "^6.2.5"
+pdoc3 = "^0.10.0"
+
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+
+[tool.ruff]
+ignore = ["E501"]
+select = ["B","C","E","F","W","B9", "I", "Q"]
+
+# Exclude a variety of commonly ignored directories.
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".git-rewrite",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
+]
+
+
+# Same as Black.
+line-length = 88
+
+
+[tool.ruff.mccabe]
+max-complexity = 10
