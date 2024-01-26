@@ -1,2 +1,2 @@
 # llm_research
-*a package to do research utilizing Large Language Models*
+*A minimum Python package built on top of the LangChain framework to interact with LLM.*
