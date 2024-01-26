@@ -1,0 +1,15 @@
+{
+    "name": null,
+    "input_variables": [
+        "instructions",
+        "output_instructions",
+        "owner_address"
+    ],
+    "input_types": {},
+    "output_parser": null,
+    "partial_variables": {},
+    "template": "{instructions}\nTranslate the following address in Traditional Chinese:\n{owner_address}\nOutput Instructions:\n{output_instructions}\nBesides, don't forget to escape a single quote in your response json string.\n",
+    "template_format": "f-string",
+    "validate_template": false,
+    "_type": "prompt"
+}

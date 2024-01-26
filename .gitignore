@@ -1,10 +1,10 @@
-# raw data
-data/raw
-
 # dev environment
 dev/
 ref/
 log/
+data/
+examples/*/*.jsonl
+mlruns/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
