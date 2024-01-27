@@ -168,27 +168,27 @@ class BaseModel:
                      ) -> None:
         self.prompt = prompt
         _i, n_query, data = self.__hook_process(query_file_path)
-        query_list = [i.get(self.prompt.query_key) for i in data]
+        query_list = [i.get(prompt.query_key) for i in data]
 
         if fewshot_examples_path is not None:
-            prompt = self.prompt.few_shot(fewshot_examples_path)
+            message_prompt = prompt.few_shot(fewshot_examples_path)
             mlflow.log_artifact(fewshot_examples_path)
         else:
-            prompt = self.prompt.zero_shot()
+            message_prompt = prompt.zero_shot()
 
         logger.info('start the query process')
         with self.llm_response_file_path.open('ab') as f:
             for i in trange(n_query, position=0, leave=True):
                 chain = (
-                     prompt.partial(**{self.prompt.query_key: query_list[_i+i]})
+                     message_prompt.partial(**{prompt.query_key: query_list[_i+i]})
                     | self.llm
-                    | self.prompt.parser
+                    | prompt.parser
                 )
                 res = self.request_instance("", chain, _i+i)
                 f.write(orjson.dumps(res , option=orjson.OPT_APPEND_NEWLINE))
                 time.sleep(sleep)
 
-        logger.info('finish the process')
+        logger.info('finish the query process')
         self.mlflow_logging(data)
 
 

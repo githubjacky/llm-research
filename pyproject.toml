@@ -5,6 +5,7 @@ description = "A minimum Python package built on top of the LangChain framework 
 authors = ["githubjacky"]
 license = "MIT"
 readme = "README.md"
+packages = [{include = "llm_research"}]
 
 
 [tool.poetry.dependencies]
