@@ -69,3 +69,9 @@ model.request_batch(
     'fewshot_examples.jsonl'
 )
 ```
+
+3. end the requests
+Dont' forget to end the request procedure to close the MLflow logging service.
+```python
+model.end_request()
+```
