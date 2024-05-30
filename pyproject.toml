@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "llm-research"
-version = "0.1.0"
+version = "0.2.0"
 description = "A minimum Python package built on top of the LangChain framework to interact with LLM."
 authors = ["githubjacky"]
 license = "MIT"
