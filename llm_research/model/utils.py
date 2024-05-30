@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Dict, List
 
 
+
 def env_setup(tag: str = "OPENAI", env_file: str = '.env') -> None:
     load_dotenv(env_file)
     match tag:
@@ -46,3 +47,5 @@ def read_jsonl(path: str | Path,
             else
             res[:n]
         )
+
+

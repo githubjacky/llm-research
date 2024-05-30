@@ -10,7 +10,6 @@ from langchain.globals import set_verbose
 from langchain.memory.buffer import ConversationBufferMemory
 import numpy as np
 import orjson
-import openai
 from operator import itemgetter
 from pathlib import Path
 import sys
@@ -43,7 +42,7 @@ class BaseModel:
         logger.remove()
         logger.add(self.log_file_path, level = "INFO")
 
-        llm_response_dir = Path(f'data/model_results/{self.experiment_name}')
+        llm_response_dir = Path(f'data/request_results/{self.experiment_name}')
         llm_response_dir.mkdir(parents=True, exist_ok=True)
         self.llm_response_file_path = llm_response_dir / f'{self.run_name}.jsonl'
 
@@ -70,7 +69,7 @@ class BaseModel:
                 res = chain.invoke({'instructions': instructions})
 
                 bad = False
-                for key in self.prompt.response_keys:
+                for key in self.prompt.response_variables:
                     if res.get(key) is None:
                         bad = True
                         break
@@ -119,12 +118,12 @@ class BaseModel:
         return run_info['run_id'].values[0]
 
 
-    def __hook_process(self, query_file_path: str) -> Tuple[int, int, List]:
-        data = read_jsonl(query_file_path)
+    def __hook_process(self, request_file_path: str) -> Tuple[int, int, List]:
+        data = read_jsonl(request_file_path)
 
         if not self.llm_response_file_path.exists():
             _i = 0
-            n_query = len(data)
+            n_request = len(data)
         else:
             _i = len(read_jsonl(self.llm_response_file_path))
             if _i == len(data):
@@ -133,13 +132,13 @@ class BaseModel:
                 self.llm_response_file_path.unlink(missing_ok=True)
 
                 _i = 0
-                n_query = len(data)
+                n_request = len(data)
             else:
-                n_query = len(data) - _i
-                logger.info(f"restart the process form the {_i+1}th query")
+                n_request = len(data) - _i
+                logger.info(f"restart the process form the {_i+1}th request")
 
         mlflow.start_run(experiment_id=self.__experiment_id, run_name=self.run_name)
-        return _i, n_query, data
+        return _i, n_request, data
 
 
     def mlflow_logging(self, data: List[Dict]):
@@ -157,18 +156,18 @@ class BaseModel:
             key: value
             for key, value in zip(keys, values)
         }
-        mlflow.log_table(table_dict, "query_response.json")
+        mlflow.log_table(table_dict, "request_response.json")
 
 
     def request_batch(self,
                       prompt: Prompt,
-                      query_file_path: str,
+                      request_file_path: str,
                       fewshot_examples_path: Optional[str] = None,
                       sleep: int = 3,
                      ) -> None:
         self.prompt = prompt
-        _i, n_query, data = self.__hook_process(query_file_path)
-        query_list = [i.get(prompt.query_key) for i in data]
+        _i, n_request, data = self.__hook_process(request_file_path)
+        request_list = [i.get(prompt.request_variable) for i in data]
 
         if fewshot_examples_path is not None:
             message_prompt = prompt.few_shot(fewshot_examples_path)
@@ -176,11 +175,11 @@ class BaseModel:
         else:
             message_prompt = prompt.zero_shot()
 
-        logger.info('start the query process')
+        logger.info('start the request process')
         with self.llm_response_file_path.open('ab') as f:
-            for i in trange(n_query, position=0, leave=True):
+            for i in trange(n_request, position=0, leave=True):
                 chain = (
-                     message_prompt.partial(**{prompt.query_key: query_list[_i+i]})
+                     message_prompt.partial(**{prompt.request_variable: request_list[_i+i]})
                     | self.llm
                     | prompt.parser
                 )
@@ -188,7 +187,7 @@ class BaseModel:
                 f.write(orjson.dumps(res , option=orjson.OPT_APPEND_NEWLINE))
                 time.sleep(sleep)
 
-        logger.info('finish the query process')
+        logger.info('finish the request process')
         self.mlflow_logging(data)
 
 

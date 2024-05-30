@@ -21,29 +21,38 @@ class Prompt:
                  human_prompt_path:str ,
                  **system_message_input_variables
                 ):
-        self.response_keys = list(pydantic_object.__fields__.keys())
+        self.response_variables = list(pydantic_object.__fields__.keys())
         self.parser = JsonOutputParser(pydantic_object=pydantic_object)
         self.output_instructions = self.parser.get_format_instructions()
 
         self.system_prompt_path = system_prompt_path
         self.system_prompt_template = load_prompt(system_prompt_path).template
-        self.system_message = system_message_input_variables
+        self.system_message_input_variables = system_message_input_variables
 
         self.human_prompt_path = human_prompt_path
         human_prompt = load_prompt(human_prompt_path)
         self.human_prompt_template = human_prompt.template
 
-        query_variables = human_prompt.input_variables
-        if not 'instructions' in query_variables:
+        request_variables = human_prompt.input_variables
+        if not 'instructions' in request_variables:
             logger.debug('"instuctions" is not the input variable of human prompt')
             sys.exit()
-        elif not 'output_instructions' in query_variables:
+        elif not 'output_instructions' in request_variables:
             logger.debug('"output_instructions" is not the input variable of human prompt')
             sys.exit()
         else:
-            query_variables.remove('instructions')
-            query_variables.remove('output_instructions')
-            self.query_key = query_variables[0]
+            request_variables.remove('instructions')
+            request_variables.remove('output_instructions')
+            self.request_variable = request_variables[0]
+
+
+    @property
+    def system_message(self):
+        return (
+            self
+            .system_prompt_template
+            .format(**self.system_message_input_variables)
+        )
 
 
     def zero_shot(self) -> ChatPromptTemplate:
@@ -55,19 +64,19 @@ class Prompt:
                 ("human", self.human_prompt_template)
             ])
             .partial(
-                **self.system_message,
+                **self.system_message_input_variables,
                 output_instructions = self.output_instructions,
             )
         )
 
 
     def __create_fewshot_prompt(self,
-                                query_examples: List[str],
+                                request_examples: List[str],
                                 response_examples: List[str],
                                ) -> ChatPromptTemplate:
         few_shot_example = [
             {
-                self.query_key: query_examples[i],
+                self.request_variable: request_examples[i],
                 "response": response_examples[i],
                 "instructions": "",
                 "output_instructions": "",
@@ -93,7 +102,7 @@ class Prompt:
                 ("human", self.human_prompt_template),
             ])
             .partial(
-                **self.system_message,
+                **self.system_message_input_variables,
                 output_instructions = self.output_instructions
             )
         )
@@ -104,15 +113,12 @@ class Prompt:
         Args:
             `fewshot_examples_path`: It must be json lines file. 
 
-            `query_key`: Each json instance must contains this key and for all
-                the other keys are the keys of json format of LLM response.
-
         Example:
             .. code-block:: python
 
                 fewshot_examples = [
-                    {"query": "", "label": "", "reason": ""},
-                    {"query": "", "label": "", "reason": ""},
+                    {"request_varialbe": "", "label": "", "reason": ""},
+                    {"request_variable": "", "label": "", "reason": ""},
                 ]
                 with Path('fewshot_examples.jsonl').open('w') as f:
                     for i in fewshot_examples:
@@ -121,16 +127,16 @@ class Prompt:
                 Prompt.few_shot('fewshot_examples.jsonl')
         """
         fewshot_examples = read_jsonl(fewshot_examples_path)
-        query_examples = []
+        request_examples = []
         response_examples = []
 
         for item in fewshot_examples:
-            query_examples.append(item[self.query_key])
+            request_examples.append(item[self.request_variable])
             response_examples.append(
                 orjson.dumps(
-                    {k: item[k] for k in self.response_keys}
+                    {k: item[k] for k in self.response_variables}
                 )
                 .decode()
             )
 
-        return self.__create_fewshot_prompt(query_examples, response_examples)
+        return self.__create_fewshot_prompt(request_examples, response_examples)
