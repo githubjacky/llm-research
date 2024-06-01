@@ -60,8 +60,8 @@ model.init_request(experiment_name='10-test', run_name='chatgpt3.5')
 
 2. start requesting
 
-The input data should be formatted in json line files and each json instance should contain keys for request variable. For example, if users has `news` as the request variable in the human prompt, there must be a key `news` in each json instance. Notice that `instructions` and `output_instructions` shouldn't be excluded.
-For fewshot examples, it should also be formatted as json lines and besides the request variable of human prompt should be one of the keys in each json instances, all fields of the pydantic data class should also be included. Based on the previous example, ther json must have two keys-`news` and `translated_address`.
+The input data should be formatted in json line files and each json instance should contain keys for request variable. For example, if users has `owner_address` as the request variable in the human prompt, there must be a key `owner_address` in each json instance. Notice that `instructions` and `output_instructions` shouldn't be excluded.
+For fewshot examples, it should also be formatted as json lines and besides the request variable of human prompt should be one of the keys in each json instances, all fields of the pydantic data class should also be included. Based on the previous example, ther json must have two keys-`owner_address` and `translated_address`.
 ```python
 model.request_batch(
     prompt,
