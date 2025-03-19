@@ -1,0 +1,43 @@
+version: '3'
+services:
+  ollama:
+    image: ollama/ollama:0.6.1
+    container_name: ollama
+    volumes:
+      - type: bind
+        source: /home/r12323011/github/ollama
+        target: /root/.ollama
+      - type: bind
+        source: /usr/local/cuda-12.4
+        target: /usr/local/cuda-12.4
+    ports:
+      - "11434:11434"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 3
+              capabilities: [gpu]
+
+  devcontainer:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - ollama
+    volumes:
+      - type: bind
+        source: ..
+        target: /llm_research
+      - type: bind
+        source: /usr/local/cuda-12.4
+        target: /usr/local/cuda-12.4
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 3
+              capabilities: [gpu]
+    command: /bin/sh -c "trap :; TERM INT; sleep infinity & wait"
