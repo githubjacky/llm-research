@@ -2,7 +2,7 @@ version: '3'
 services:
   ollama:
     image: ollama/ollama:0.6.1
-    container_name: ollama
+    container_name: ollama-llm-research
     volumes:
       - type: bind
         source: /home/r12323011/github/ollama
@@ -10,8 +10,8 @@ services:
       - type: bind
         source: /usr/local/cuda-12.4
         target: /usr/local/cuda-12.4
-    ports:
-      - "11434:11434"
+    # ports:
+    #   - "12434:12434"
     deploy:
       resources:
         reservations:
