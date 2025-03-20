@@ -70,18 +70,13 @@ class BaseModel:
             try:
                 res = chain.invoke({'instructions': instructions})
 
-                bad = False
-                for key in self.prompt.response_variables:
-                    if res.get(key) is None:
-                        bad = True
-                        break
-                if not bad:
+                if set(res.keys()) == set(self.prompt.response_variables):
                     retry = False
                 else:
                     logger.info(f"formatting error(KeyError) for {i+1} th sample, re-generate")
                     instructions = " ".join((
-                        "Your answer which is a json string don't",
-                        "have the specified key. Follow the schema carefully.",
+                        "Your answer which is a json string has missing keys or extra keys.",
+                        "Follow the schema carefully.",
                     ))
 
             except orjson.JSONDecodeError:
@@ -187,6 +182,7 @@ class BaseModel:
                 )
                 res = self.request_instance("", chain, _i+i)
                 f.write(orjson.dumps(res , option=orjson.OPT_APPEND_NEWLINE))
+                f.flush()
                 time.sleep(sleep)
 
         logger.info('finish the request process')
