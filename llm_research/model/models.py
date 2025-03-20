@@ -34,6 +34,7 @@ class OllamaLLM(BaseModel):
                  verbose = False
                 ) -> None:
         super().__init__(verbose)
+        env_setup()
         self.llm = ChatOllama(
             model = model,
             num_ctx = num_ctx,
