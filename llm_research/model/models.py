@@ -9,37 +9,46 @@ class OpenAILLM(BaseModel):
     def __init__(self,
                  *,
                  model: str = 'gpt-3.5-turbo-1106',
-                 temperature: float = 0.,
+                 seed: int = 1126,
+                 temperature: float = 0.8,
+                 max_completion_tokens: int|None = None,
                  timeout: int = 120,
                  verbose = False
                 ) -> None:
-        super().__init__(verbose)
         env_setup("OPENAI")
-        self.llm = ChatOpenAI(
+        llm = ChatOpenAI(
             model = model,
+            seed = seed,
             temperature = temperature,
+            max_completion_tokens = max_completion_tokens,
+            # ref: https://github.com/langchain-ai/langchainjs/issues/4555#issuecomment-1975270399
+            model_kwargs={"response_format": {"type": "json_object"}},
             timeout = timeout,
             verbose = verbose
         )
+        super().__init__(llm, verbose)
 
 
 class OllamaLLM(BaseModel):
     def __init__(self,
                  *,
                  model: str = 'phi4:14b-q4_K_M',
-                 num_ctx: int = 16384,  # context length, default to 16k, which is the case for phi4 model
-                 num_predict: int = -1,  # number of tokens to generate, -1: unlimited, -2: full context
+                 num_ctx: int = 16384,  # context length, can be check by the command: ollama show {model}
                  seed: int = 1126,  # random seed
+                 temperature: float = 0.8,
+                 num_predict: int = -1,  # number of tokens to generate, -1: unlimited, -2: full context
                  timeout: int = 120,
                  verbose = False
                 ) -> None:
-        super().__init__(verbose)
         env_setup()
-        self.llm = ChatOllama(
+        llm = ChatOllama(
             model = model,
             num_ctx = num_ctx,
-            num_predict = num_predict,
             seed = seed,
+            temperature = temperature,
+            num_predict = num_predict,
             timeout = timeout,
-            verbose = verbose
+            verbose = verbose,
+            format = 'json',
         )
+        super().__init__(llm, verbose)
