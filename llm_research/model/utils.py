@@ -6,13 +6,17 @@ from typing import Dict, List
 
 
 
-def env_setup(tag: str = "OPENAI", env_file: str = '.env') -> None:
+def env_setup(tag: str = "", env_file: str = '.env') -> None:
     load_dotenv(env_file)
     match tag:
-        case "GOOGLE":
-            key_name = 'GOOGLE_APPLICATION_CREDENTIALS'
-        case _:
+        case "OPENAI":
             key_name = 'OPENAI_API_KEY'
+        case "GOOGLE":
+            key_name = 'GOOGLE_API_KEY'
+        case "ANTHROPIC":
+            key_name = 'ANTHROPIC_API_KEY'
+        case _:
+            key_name = 'LANGSMITH_TRACING'
 
     key = getenv(key_name)
 

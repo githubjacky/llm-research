@@ -39,6 +39,8 @@ class BaseModel:
         log_dir = Path(f'log/{self.experiment_name}')
         log_dir.mkdir(parents=True, exist_ok=True)
         self.log_file_path = log_dir / f'{self.run_name}.log'
+        if self.log_file_path.exists():
+            self.log_file_path.unlink()
         logger.remove()
         logger.add(self.log_file_path, level = "INFO")
 
