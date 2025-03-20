@@ -10,7 +10,7 @@
     "partial_variables": {},
     "metadata": null,
     "tags": null,
-    "template": "News article:\n{content}\n\nQuestion: \nThink step by step and determine which label should the above news article be classified as? 1 or 0?\n\nOutput Instructions:\n1. Your answer should be a json string and be able to parsed into a dictionary with the specified keys. Follow the schema below carefully.\n{output_instructions}\n\n2. In addition to correctly classifying the label, provide the reasons based on the previously mentioned steps. Specifically, for label 1 news, indicate at which steps it fails.\n\n3. Besides, don't forget to escape a single quote in the reason section.\n\n{instructions}\n",
+    "template": "News article:\n{content}\n\nQuestion: \nThink step by step and determine which label should the above news article be classified as? Recall that 1 for introducing policy-related economic uncertainty and 0 for the opposite case.\n\nOutput Instructions:\n1. Your answer should be a json string and be able to parsed into a dictionary with the specified keys. Follow the schema below carefully.\n{output_instructions}\n\n2. In addition to correctly classifying the label, provide the reasons based on the previously mentioned steps. Specifically, for label 1 news, indicate at which steps it fails.\n\n3. Besides, don't forget to escape a single quote in the reason section.\n\n{instructions}\n",
     "template_format": "f-string",
     "validate_template": false,
     "_type": "prompt"
