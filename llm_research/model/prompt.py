@@ -45,6 +45,10 @@ class Prompt:
             request_variables.remove('output_instructions')
             self.request_variable = request_variables[0]
 
+        # it will be initialized later, in the self.few_shot method
+        self.fewshot_examples = None
+        self.max_n_fewshot_examples = None
+
 
     @property
     def system_message(self):
@@ -108,7 +112,7 @@ class Prompt:
         )
 
 
-    def few_shot(self, fewshot_examples_path: str) -> ChatPromptTemplate:
+    def few_shot(self, fewshot_examples_path: str|None, n_examples: int|None = None) -> ChatPromptTemplate:
         """Create fewshot prompt.
         Args:
             `fewshot_examples_path`: It must be json lines file. 
@@ -126,7 +130,17 @@ class Prompt:
 
                 Prompt.few_shot('fewshot_examples.jsonl')
         """
-        fewshot_examples = read_jsonl(fewshot_examples_path)
+        # when the first time this method is called
+        # it will be called multiple times if the size of the prompt exceed llm's context length
+        if self.fewshot_examples is None:
+            self.fewshot_examples = read_jsonl(fewshot_examples_path)
+            self.max_n_fewshot_examples = len(self.fewshot_examples)
+            n_examples = self.max_n_fewshot_examples
+
+        if n_examples is None:
+            n_examples = self.max_n_fewshot_examples
+
+        fewshot_examples = self.fewshot_examples[:n_examples]
         request_examples = []
         response_examples = []
 
