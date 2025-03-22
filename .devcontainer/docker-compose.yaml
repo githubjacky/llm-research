@@ -3,6 +3,7 @@ services:
   ollama:
     image: ollama/ollama:0.6.1
     container_name: ollama-llm-research
+    restart: always
     volumes:
       - type: bind
         source: /home/r12323011/github/ollama
@@ -24,6 +25,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    container_name: llm-research
     depends_on:
       - ollama
     volumes:
@@ -33,6 +35,8 @@ services:
       - type: bind
         source: /usr/local/cuda-12.4
         target: /usr/local/cuda-12.4
+    ports:
+      - "5000:5000"  #mlflow
     deploy:
       resources:
         reservations:
