@@ -295,9 +295,14 @@ class BaseModel:
                 f.flush()
                 time.sleep(sleep)
 
+        text_list = self.llm_response_file_path.read_text().split("\n")[:-1]  # remove the last empty line
+        self.llm_response_file_path.unlink()
+
         with self.llm_response_file_path.open('w') as f:
-            text = self.llm_response_file_path.read_text().split("\n")[:-1]  # remove the last empty line
-            f.write("\n".join(text))
+            for text in text_list[:-1]:
+                f.write(text)
+                f.write("\n")
+            f.write(text_list[-1])
 
         logger.info('finish the request process')
         self.mlflow_logging(data)
